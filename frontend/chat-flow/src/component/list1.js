@@ -49,7 +49,7 @@ function ListSort() {
   const handleSaveList = async () => {
     try {
       const token = getTokenFromStorage();
-      const response = await axios.post("http://localhost:5000/api/save-item", {
+      const response = await axios.post("https://cns-backend-gevs.onrender.com/api/save-item", {
         items: fruitItems,
       }, {
         headers: {
@@ -66,7 +66,7 @@ function ListSort() {
   const handleLoadMessages = async () => {
     try {
       const token = getTokenFromStorage();
-      const response = await axios.get("http://localhost:5000/api/get-items", {
+      const response = await axios.get("https://cns-backend-gevs.onrender.com/api/get-items", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
