@@ -46,9 +46,8 @@ app.post("/api/save-item", async (req, res) => {
 
     const {userid,items}= req.body;
     const Item = await usermodel.findById({_id:userid});
-    console.log(Item)
+    
     Item.content[0]=items;
-    console.log(Item)
      const val= await usermodel.findByIdAndUpdate({_id:userid},{content:Item.content})
     res.status(201).json({"msg":"Chat saved successfully"});
   } catch (error) {

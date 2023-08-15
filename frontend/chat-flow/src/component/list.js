@@ -1,32 +1,30 @@
-import React, { useState, useRef } from "react";
-import "../style/list.css"
+import React, { useState, useRef, useEffect } from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import axios from "axios";
+import "../style/list.css";
 
 function ListSort() {
-  const [fruitItems, setFruitItems] = useState(["Hii how can i help you?"]);
-  const [newFruitItem, setNewFruitItem] = useState("");
-  const [chatMessages, setChatMessages] = useState([]);
+  const [chatMessages, setChatMessages] = useState(["Hii how can I help you?"]);
   const [newChatMessage, setNewChatMessage] = useState("");
 
   const dragItem = useRef(null);
   const dragOverItem = useRef(null);
 
+  useEffect(() => {
+    const token = getTokenFromStorage();
+    if (token) {
+      handleLoadMessages();
+    } 
+  }, []);
+
   const handleSort = () => {
-    let _fruitItems = [...fruitItems];
-    const draggedItemContent = _fruitItems.splice(dragItem.current, 1)[0];
-    _fruitItems.splice(dragOverItem.current, 0, draggedItemContent);
+    const _chatMessages = [...chatMessages];
+    const draggedItemContent = _chatMessages.splice(dragItem.current, 1)[0];
+    _chatMessages.splice(dragOverItem.current, 0, draggedItemContent);
     dragItem.current = null;
     dragOverItem.current = null;
-    setFruitItems(_fruitItems);
-  };
-
-  const handleNameChange = (e) => {
-    setNewFruitItem(e.target.value);
-  };
-
-  const handleAddItem = () => {
-    const _fruitItems = [...fruitItems];
-    _fruitItems.push(newFruitItem);
-    setFruitItems(_fruitItems);
+    setChatMessages(_chatMessages);
   };
 
   const handleChatMessageChange = (e) => {
@@ -41,24 +39,74 @@ function ListSort() {
     }
   };
 
+  const getTokenFromStorage = () => {
+    return sessionStorage.getItem("token");
+  };
+
+  const handleSaveList = async () => {
+    try {
+      const token = getTokenFromStorage();
+      const response = await axios.post(
+        "https://cns-backend-gevs.onrender.com/api/save-item",
+        {
+          items: chatMessages,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("List is saved");
+    } catch (error) {
+      console.error("Error saving list:", error);
+      alert(error.message);
+    }
+  };
+
+  const handleLoadMessages = async () => {
+    try {
+      const token = getTokenFromStorage();
+      const response = await axios.get(
+        "https://cns-backend-gevs.onrender.com/api/get-items",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response)
+      setChatMessages(response.data); // Set chat messages state
+    } catch (error) {
+      console.error("Error loading messages:", error);
+      alert(error.message);
+    }
+  };
+
   return (
     <div className="app">
       <div className="container">
         <div className="list-container">
-          <h2>Fruit List</h2>
+          <h2>Messages Flow</h2>
           <div className="input-group">
             <input
               type="text"
               name="fruitName"
-              placeholder="e.g Banana"
-              onChange={handleNameChange}
+              placeholder="Write message"
+              onChange={handleChatMessageChange}
+              value={newChatMessage}
             />
-            <button className="btn" onClick={handleAddItem}>
-              Add item
+            <button className="btn" onClick={handleSendMessage}>
+              Send
             </button>
+            <button className="btn-2" onClick={handleSaveList}>
+            Save List
+          </button>
+          <h5>Drag and Drop <span/> <FontAwesomeIcon icon={faArrowDown}/> </h5>
           </div>
+          
           <div className="list-sort">
-            {fruitItems.map((item, index) => (
+            {chatMessages.map((message, index) => (
               <div
                 key={index}
                 className="list-item"
@@ -69,7 +117,7 @@ function ListSort() {
                 onDragOver={(e) => e.preventDefault()}
               >
                 <i className="fa-solid fa-bars"></i>
-                <h3>{item}</h3>
+                <h3>{message}</h3>
               </div>
             ))}
           </div>
@@ -85,14 +133,8 @@ function ListSort() {
             ))}
           </div>
           <div className="chat-input">
-            <input
-              type="text"
-              placeholder="Type your message..."
-              value={newChatMessage}
-              onChange={handleChatMessageChange}
-            />
-            <button className="btn" onClick={handleSendMessage}>
-              Send
+            <button className="btn" onClick={handleLoadMessages}>
+              Load Messages
             </button>
           </div>
         </div>

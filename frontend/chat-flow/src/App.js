@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
-import ListSort from './component/list1';
+import ListSort from './component/list';
 import Navbar from './component/navbar';
 import Login from './component/login'; // Import the Login component
 import Signup from './component/signup'; // Import the Signup component
